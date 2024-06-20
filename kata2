@@ -1,0 +1,101 @@
+package main
+
+import (
+    "fmt"
+    "strconv"
+    "strings"
+)
+
+func romanToArabic(roman string) int {
+    romanMap := map[rune]int{'I': 1, 'V': 5, 'X': 10}
+    result := 0
+    prev := 0
+    for i := len(roman) - 1; i >= 0; i-- {
+        value := romanMap[rune(roman[i])]
+        if value < prev {
+            result -= value
+        } else {
+            result += value
+        }
+        prev = value
+    }
+    return result
+}
+
+func arabicToRoman(number int) string {
+    if number <= 0 {
+        panic("Результат должен быть положительным числом в римской системе")
+    }
+
+    arabicToRomanMap := []struct {
+        arabic int
+        roman  string
+    }{
+        {10, "X"},
+        {9, "IX"},
+        {5, "V"},
+        {4, "IV"},
+        {1, "I"},
+    }
+
+    result := ""
+    for _, mapping := range arabicToRomanMap {
+        for number >= mapping.arabic {
+            result += mapping.roman
+            number -= mapping.arabic
+        }
+    }
+    return result
+}
+
+func calculate(expression string) interface{} {
+    parts := strings.Split(expression, " ")
+
+    a, err := strconv.Atoi(parts[0])
+    if err != nil {
+        a = romanToArabic(parts[0])
+    } else if a < 1 || a > 10 {
+        panic("Число должно быть от 1 до 10")
+    }
+
+    b, err := strconv.Atoi(parts[2])
+    if err != nil {
+        b = romanToArabic(parts[2])
+    } else if b < 1 || b > 10 {
+        panic("Число должно быть от 1 до 10")
+    }
+
+    switch parts[1] {
+    case "+":
+        return a + b
+    case "-":
+        result := a - b
+        if result < 0 {
+            panic("Результат должен быть положительным числом")
+        }
+        return result
+    case "*":
+        return a * b
+    case "/":
+        if b == 0 {
+            panic("Деление на ноль")
+        }
+        return a / b
+    default:
+        panic("Неверная операция")
+    }
+}
+
+func main() {
+    expression := "III + 3"
+
+    result := calculate(expression)
+
+    switch res := result.(type) {
+    case int:
+        fmt.Println(res)
+    case string:
+        fmt.Println(res)
+    }
+}
+
